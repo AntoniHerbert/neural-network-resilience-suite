@@ -3,346 +3,461 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apresentação de Resultados - Pesquisa</title>
+    <title>Neural Network Resilience Suite - Apresentação</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .slide {
-            display: none;
-            animation: fadeIn 0.5s ease-in-out;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Fira+Code:wght@400;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow: hidden;
         }
-        .slide.active {
+        
+        h1, h2, h3 { font-family: 'Fira Code', monospace; }
+
+        .slider-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
             display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        .slider-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 0;
+            pointer-events: none;
         }
-        /* Custom image styling to fit presentation mode */
-        .img-container {
+
+        .slide {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: scale(0.95);
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            padding: 4rem 8vw;
+            z-index: 1;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        .nav-btn {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 50;
+            transition: all 0.3s;
+            backdrop-filter: blur(4px);
+        }
+        .nav-btn:hover { background: #3b82f6; transform: translateY(-50%) scale(1.1); }
+        .prev-btn { left: 20px; }
+        .next-btn { right: 20px; }
+
+        .dots-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            z-index: 50;
+            max-width: 80vw;
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .dot.active { background: #3b82f6; box-shadow: 0 0 10px #3b82f6; transform: scale(1.3); }
+
+        .img-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100%;
+            width: 100%;
+            max-width: 900px;
+            height: 65vh;
+            margin: 0 auto;
+            position: relative;
         }
-        .img-container img {
-            max-height: 40vh; /* Adjusts image height to avoid scrolling */
+        
+        .img-card img {
+            max-width: 100%;
+            max-height: 100%;
             object-fit: contain;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            border: 1px solid #e5e7eb;
+            border-radius: 8px;
         }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans h-screen w-screen overflow-hidden selection:bg-blue-200">
+<body>
 
-    <!-- Container da Apresentação -->
-    <div class="h-full w-full flex flex-col relative">
+    <div class="slider-container" id="slider">
         
-        <!-- Header / Navigation Bar -->
-        <div class="flex justify-between items-center p-6 bg-white shadow-sm z-10">
-            <h1 class="text-xl font-bold text-blue-800">Acompanhamento de Pesquisa</h1>
-            <div class="flex items-center space-x-4">
-                <span id="slide-counter" class="text-sm font-semibold text-gray-500">Slide 1 / 18</span>
+        <!-- SLIDE 1: Capa -->
+        <div class="slide active">
+            <div class="h-full flex flex-col items-center justify-center text-center">
+                <div class="mb-6 text-blue-500 text-6xl">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h1 class="text-4xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400 leading-tight pb-2">
+                    Neural Network Resilience Suite
+                </h1>
+                <h2 class="text-xl md:text-2xl text-slate-300 mb-8 max-w-4xl font-light">
+                    Avaliação de Vulnerabilidade *Weight-Level* e Defesa Adaptativa contra Injeção de Falhas usando Algoritmos Genéticos
+                </h2>
+                <div class="flex gap-4">
+                    <a href="https://github.com/AntoniHerbert/neural-network-resilience-suite" target="_blank" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg font-semibold transition-colors flex items-center gap-2">
+                        <i class="fa-brands fa-github"></i> Ver Código Fonte
+                    </a>
+                    <button onclick="nextSlide()" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-semibold transition-colors shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                        Iniciar Apresentação <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Slides Area -->
-        <div class="flex-1 relative w-full h-full p-8 overflow-hidden">
-            
-            <!-- SLIDE 0: CAPA DA APRESENTAÇÃO -->
-            <div class="slide active flex-col justify-center items-center h-full w-full max-w-5xl mx-auto text-center">
-                <div class="bg-white p-12 rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center justify-center max-w-3xl">
-                    <span class="px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-blue-50 text-blue-700 mb-6">
-                        Relatório de Progresso Acadêmico
-                    </span>
-                    <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight mb-6">
-                        Robustez Tolerante a Falhas em Redes Neurais
-                    </h1>
-                    <p class="text-lg text-gray-600 mb-8 max-w-2xl">
-                        Estudo do impacto de alterações topológicas (vacinação, bimodalidade e AG Pruning) contra injeção de falhas por bit-flips nas arquiteturas ResNet.
+        <!-- SLIDE 2: Metodologia - Ameaça -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center items-center max-w-4xl mx-auto text-center">
+                <div class="text-red-400 text-6xl mb-6"><i class="fa-solid fa-virus"></i></div>
+                <h2 class="text-4xl font-bold mb-6 text-red-400 border-b border-slate-700 pb-4 inline-block">
+                    A Ameaça: Algoritmo Genético
+                </h2>
+                <p class="text-xl text-slate-300 leading-relaxed mb-6">
+                    Em vez de ataques de força bruta cega, extraímos <strong>31 features topológicas</strong> (Energy, Saliency, Gradients, etc.) de cada parâmetro para prever sua probabilidade exata de colapso através do framework MLBFA.
+                </p>
+                <p class="text-xl text-slate-300 leading-relaxed">
+                    Com a predição feita, o Algoritmo Genético foca exclusivamente nos <strong>Top 120 pesos mais críticos</strong>, realizando recombinações para buscar o conjunto mínimo de Bit-Flips capaz de destruir a inferência da rede.
+                </p>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: Metodologia - Defesa -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center items-center max-w-4xl mx-auto text-center">
+                <div class="text-emerald-400 text-6xl mb-6"><i class="fa-solid fa-syringe"></i></div>
+                <h2 class="text-4xl font-bold mb-6 text-emerald-400 border-b border-slate-700 pb-4 inline-block">
+                    A Defesa: Fault-Aware Training
+                </h2>
+                <p class="text-xl text-slate-300 leading-relaxed mb-6">
+                    Nossa "vacina" propõe um Quantization-Aware Training aliado a uma penalidade bimodal na função de perda. O grande diferencial tático ocorre durante o <em>fine-tuning</em>:
+                </p>
+                <div class="bg-emerald-900/30 border border-emerald-700/50 p-6 rounded-xl">
+                    <p class="text-xl text-emerald-100 font-semibold leading-relaxed">
+                        "Injetamos ruído intencionalmente (simulando falhas) de forma direcionada, focando <span class="text-white underline">exclusivamente nos 120 pesos mapeados como mais vulneráveis</span> pelo preditor."
                     </p>
-                    <div class="h-1 w-20 bg-blue-600 rounded mb-8"></div>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-bold text-gray-400 uppercase tracking-wider w-full pt-4 border-t border-gray-100">
-                        <div>ResNet-20</div>
-                        <div>ResNet-32</div>
-                        <div>ResNet-44</div>
-                        <div>ResNet-56</div>
-                    </div>
                 </div>
+                <p class="text-lg text-slate-400 leading-relaxed mt-6">
+                    Isso força a rede a aprender a descentralizar a importância desses parâmetros específicos, impedindo a concentração de vulnerabilidades (mitigando o efeito <em>Whack-a-Mole</em>) e achatando os picos de letalidade.
+                </p>
             </div>
-
-            <!-- SLIDE 1: INTRODUÇÃO -->
-            <div class="slide flex-col h-full w-full max-w-6xl mx-auto">
-                <div class="text-center mb-8">
-                    <h2 class="text-4xl font-extrabold text-gray-900 mb-4">Estratégia de Vacinação em Redes Neurais</h2>
-                    <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-                        A solução atual baseia-se em <strong>alterar a topologia da rede</strong> (induzindo uma distribuição bimodal e aplicando quantização/pruning) para aumentar drasticamente sua robustez a injeção de falhas (bit-flips).
-                    </p>
-                </div>
-                <div class="flex justify-center items-center flex-1">
-                    <div class="img-container w-full max-w-2xl">
-                        <!-- Usando o histograma do Exp 2 como ilustração inicial -->
-                        <img src="Experimento2/resultados_paper/distribuicao_pesos_bimodal_log_resnet20.png" alt="Distribuição Bimodal dos Pesos">
-                        <p class="mt-4 text-sm text-gray-500 font-medium">Exemplo: Modificação da topologia forçando distribuição bimodal nos pesos.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE 2: EXPERIMENTO 2 (ResNet-20) -->
-            <div class="slide flex-col h-full w-full max-w-7xl mx-auto">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl font-bold text-blue-900">Experimento 2: ResNet-20</h2>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 h-full items-center">
-                    <div class="img-container">
-                        <h3 class="text-lg font-semibold mb-2">Curva de Colapso (Stress)</h3>
-                        <img src="Experimento2/resultados_paper/grafico_stress_progressivo_global_resnet20.png" alt="Stress Progressivo Global - ResNet20" onerror="this.src='Experimento2/resultados_paper/grafico_stress_progressivo_resnet20.png'">
-                    </div>
-                    <div class="img-container">
-                        <h3 class="text-lg font-semibold mb-2">Teste Genético (AG Prune)</h3>
-                        <img src="Experimento2/resultados_paper/grafico_ag_prune_resnet20.png" alt="Algoritmo Genético - ResNet20">
-                    </div>
-                    <div class="img-container">
-                        <h3 class="text-lg font-semibold mb-2">Histograma da Rede</h3>
-                        <img src="Experimento2/resultados_paper/distribuicao_pesos_bimodal_log_resnet20.png" alt="Histograma - ResNet20">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE: EXPERIMENTO 2 - INDIVIDUAL 1 -->
-            <div class="slide flex-col h-full w-full max-w-7xl mx-auto">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl font-bold text-blue-900">ResNet-20: Curva de Colapso (Stress)</h2>
-                </div>
-                <div class="flex justify-center items-center flex-1 h-full">
-                    <div class="img-container w-full h-full">
-                        <img src="Experimento2/resultados_paper/grafico_stress_progressivo_global_resnet20.png" alt="Stress Progressivo Global - ResNet20" onerror="this.src='Experimento2/resultados_paper/grafico_stress_progressivo_resnet20.png'" style="max-height: 75vh;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE: EXPERIMENTO 2 - INDIVIDUAL 2 -->
-            <div class="slide flex-col h-full w-full max-w-7xl mx-auto">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl font-bold text-blue-900">ResNet-20: Teste Genético (AG Prune)</h2>
-                </div>
-                <div class="flex justify-center items-center flex-1 h-full">
-                    <div class="img-container w-full h-full">
-                        <img src="Experimento2/resultados_paper/grafico_ag_prune_resnet20.png" alt="Algoritmo Genético - ResNet20" style="max-height: 75vh;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE: EXPERIMENTO 2 - INDIVIDUAL 3 -->
-            <div class="slide flex-col h-full w-full max-w-7xl mx-auto">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl font-bold text-blue-900">ResNet-20: Histograma da Rede</h2>
-                </div>
-                <div class="flex justify-center items-center flex-1 h-full">
-                    <div class="img-container w-full h-full">
-                        <img src="Experimento2/resultados_paper/distribuicao_pesos_bimodal_log_resnet20.png" alt="Histograma - ResNet20" style="max-height: 75vh;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE 3: EXPERIMENTO 3 (ResNet-56) -->
-            <div class="slide flex-col h-full w-full max-w-7xl mx-auto">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl font-bold text-blue-900">Experimento 3: ResNet-56</h2>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 h-full items-center">
-                    <div class="img-container">
-                        <h3 class="text-lg font-semibold mb-2">Curva de Colapso (Stress)</h3>
-                        <img src="Experimento3/resultados_paper/grafico_stress_progressivo_global_resnet56.png" alt="Stress Progressivo Global - ResNet56" onerror="this.src='Experimento3/resultados_paper/grafico_stress_progressivo_resnet56.png'">
-                    </div>
-                    <div class="img-container">
-                        <h3 class="text-lg font-semibold mb-2">Teste Genético (AG Prune)</h3>
-                        <img src="Experimento3/resultados_paper/grafico_ag_prune_resnet56.png" alt="Algoritmo Genético - ResNet56">
-                    </div>
-                    <div class="img-container">
-                        <h3 class="text-lg font-semibold mb-2">Histograma da Rede</h3>
-                        <img src="Experimento3/resultados_paper/distribuicao_pesos_bimodal_log_resnet56.png" alt="Histograma - ResNet56">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE: EXPERIMENTO 3 - INDIVIDUAL 1 -->
-            <div class="slide flex-col h-full w-full max-w-7xl mx-auto">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl font-bold text-blue-900">ResNet-56: Curva de Colapso (Stress)</h2>
-                </div>
-                <div class="flex justify-center items-center flex-1 h-full">
-                    <div class="img-container w-full h-full">
-                        <img src="Experimento3/resultados_paper/grafico_stress_progressivo_global_resnet56.png" alt="Stress Progressivo Global - ResNet56" onerror="this.src='Experimento3/resultados_paper/grafico_stress_progressivo_resnet56.png'" style="max-height: 75vh;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE: EXPERIMENTO 3 - INDIVIDUAL 2 -->
-            <div class="slide flex-col h-full w-full max-w-7xl mx-auto">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl font-bold text-blue-900">ResNet-56: Teste Genético (AG Prune)</h2>
-                </div>
-                <div class="flex justify-center items-center flex-1 h-full">
-                    <div class="img-container w-full h-full">
-                        <img src="Experimento3/resultados_paper/grafico_ag_prune_resnet56.png" alt="Algoritmo Genético - ResNet56" style="max-height: 75vh;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE: EXPERIMENTO 3 - INDIVIDUAL 3 -->
-            <div class="slide flex-col h-full w-full max-w-7xl mx-auto">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl font-bold text-blue-900">ResNet-56: Histograma da Rede</h2>
-                </div>
-                <div class="flex justify-center items-center flex-1 h-full">
-                    <div class="img-container w-full h-full">
-                        <img src="Experimento3/resultados_paper/distribuicao_pesos_bimodal_log_resnet56.png" alt="Histograma - ResNet56" style="max-height: 75vh;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE 4: EXPERIMENTO 4 (ResNet-44) -->
-            <div class="slide flex-col h-full w-full max-w-7xl mx-auto">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl font-bold text-blue-900">Experimento 4: ResNet-44</h2>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 h-full items-center">
-                    <div class="img-container">
-                        <h3 class="text-lg font-semibold mb-2">Curva de Colapso (Stress)</h3>
-                        <img src="Experimento4/resultados_paper/grafico_stress_progressivo_global_resnet44.png" alt="Stress Progressivo Global - ResNet44" onerror="this.src='Experimento4/resultados_paper/grafico_stress_progressivo_resnet44.png'">
-                    </div>
-                    <div class="img-container">
-                        <h3 class="text-lg font-semibold mb-2">Teste Genético (AG Prune)</h3>
-                        <img src="Experimento4/resultados_paper/grafico_ag_prune_resnet44.png" alt="Algoritmo Genético - ResNet44">
-                    </div>
-                    <div class="img-container">
-                        <h3 class="text-lg font-semibold mb-2">Histograma da Rede</h3>
-                        <img src="Experimento4/resultados_paper/distribuicao_pesos_bimodal_log.png" alt="Histograma - ResNet44">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE: EXPERIMENTO 4 - INDIVIDUAL 1 -->
-            <div class="slide flex-col h-full w-full max-w-7xl mx-auto">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl font-bold text-blue-900">ResNet-44: Curva de Colapso (Stress)</h2>
-                </div>
-                <div class="flex justify-center items-center flex-1 h-full">
-                    <div class="img-container w-full h-full">
-                        <img src="Experimento4/resultados_paper/grafico_stress_progressivo_global_resnet44.png" alt="Stress Progressivo Global - ResNet44" onerror="this.src='Experimento4/resultados_paper/grafico_stress_progressivo_resnet44.png'" style="max-height: 75vh;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE: EXPERIMENTO 4 - INDIVIDUAL 2 -->
-            <div class="slide flex-col h-full w-full max-w-7xl mx-auto">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl font-bold text-blue-900">ResNet-44: Teste Genético (AG Prune)</h2>
-                </div>
-                <div class="flex justify-center items-center flex-1 h-full">
-                    <div class="img-container w-full h-full">
-                        <img src="Experimento4/resultados_paper/grafico_ag_prune_resnet44.png" alt="Algoritmo Genético - ResNet44" style="max-height: 75vh;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE: EXPERIMENTO 4 - INDIVIDUAL 3 -->
-            <div class="slide flex-col h-full w-full max-w-7xl mx-auto">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl font-bold text-blue-900">ResNet-44: Histograma da Rede</h2>
-                </div>
-                <div class="flex justify-center items-center flex-1 h-full">
-                    <div class="img-container w-full h-full">
-                        <img src="Experimento4/resultados_paper/distribuicao_pesos_bimodal_log.png" alt="Histograma - ResNet44" style="max-height: 75vh;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE 5: EXPERIMENTO 5 (ResNet-32) -->
-            <div class="slide flex-col h-full w-full max-w-7xl mx-auto">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl font-bold text-blue-900">Experimento 5: ResNet-32</h2>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 h-full items-center">
-                    <div class="img-container">
-                        <h3 class="text-lg font-semibold mb-2">Curva de Colapso (Stress)</h3>
-                        <img src="Experimento5/resultados_paper/grafico_stress_progressivo_global_resnet32.png" alt="Stress Progressivo Global - ResNet32">
-                    </div>
-                    <div class="img-container">
-                        <h3 class="text-lg font-semibold mb-2">Teste Genético (AG Prune)</h3>
-                        <img src="Experimento5/resultados_paper/grafico_ag_prune_resnet32.png" alt="Algoritmo Genético - ResNet32">
-                    </div>
-                    <div class="img-container">
-                        <h3 class="text-lg font-semibold mb-2">Histograma da Rede</h3>
-                        <img src="Experimento5/resultados_paper/distribuicao_pesos_bimodal_log_resnet32.png" alt="Histograma - ResNet32">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE: EXPERIMENTO 5 - INDIVIDUAL 1 -->
-            <div class="slide flex-col h-full w-full max-w-7xl mx-auto">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl font-bold text-blue-900">ResNet-32: Curva de Colapso (Stress)</h2>
-                </div>
-                <div class="flex justify-center items-center flex-1 h-full">
-                    <div class="img-container w-full h-full">
-                        <img src="Experimento5/resultados_paper/grafico_stress_progressivo_global_resnet32.png" alt="Stress Progressivo Global - ResNet32" style="max-height: 75vh;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE: EXPERIMENTO 5 - INDIVIDUAL 2 -->
-            <div class="slide flex-col h-full w-full max-w-7xl mx-auto">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl font-bold text-blue-900">ResNet-32: Teste Genético (AG Prune)</h2>
-                </div>
-                <div class="flex justify-center items-center flex-1 h-full">
-                    <div class="img-container w-full h-full">
-                        <img src="Experimento5/resultados_paper/grafico_ag_prune_resnet32.png" alt="Algoritmo Genético - ResNet32" style="max-height: 75vh;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE: EXPERIMENTO 5 - INDIVIDUAL 3 -->
-            <div class="slide flex-col h-full w-full max-w-7xl mx-auto">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl font-bold text-blue-900">ResNet-32: Histograma da Rede</h2>
-                </div>
-                <div class="flex justify-center items-center flex-1 h-full">
-                    <div class="img-container w-full h-full">
-                        <img src="Experimento5/resultados_paper/distribuicao_pesos_bimodal_log_resnet32.png" alt="Histograma - ResNet32" style="max-height: 75vh;">
-                    </div>
-                </div>
-            </div>
-
         </div>
 
-        <!-- Controls -->
-        <div class="absolute inset-y-0 left-0 flex items-center pl-4">
-            <button onclick="prevSlide()" class="p-3 rounded-full bg-white/80 shadow-lg hover:bg-gray-100 focus:outline-none transition-colors border border-gray-200 text-gray-700">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-            </button>
-        </div>
-        <div class="absolute inset-y-0 right-0 flex items-center pr-4">
-            <button onclick="nextSlide()" class="p-3 rounded-full bg-white/80 shadow-lg hover:bg-gray-100 focus:outline-none transition-colors border border-gray-200 text-gray-700">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-            </button>
-        </div>
+        <!-- ========================================== -->
+        <!-- EXPERIMENTO 2: RESNET-20                   -->
+        <!-- ========================================== -->
         
-        <!-- Footer info -->
-        <div class="p-4 text-center text-xs text-gray-400">
-            Utilize as setas do teclado (Esquerda/Direita) para navegar.
+        <!-- SLIDE 4: ResNet-20 Bimodal -->
+        <div class="slide">
+            <div class="h-full flex flex-col w-full max-w-5xl mx-auto pt-6">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-center text-emerald-400">ResNet-20: Ajuste Topológico</h2>
+                <div class="img-card group">
+                    <div class="absolute top-2 left-3 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-900 px-2 py-1 rounded">Distribuição Bimodal dos Pesos</div>
+                    <img src="./Experimento2/resultados_paper/distribuicao_pesos_bimodal_log_resnet20.png" alt="Bimodal ResNet-20" onerror="fallbackImage(this, 'distribuicao_pesos_bimodal_log_resnet20.png')">
+                </div>
+            </div>
         </div>
+
+        <!-- SLIDE 5: ResNet-20 Curvas de Colapso -->
+        <div class="slide">
+            <div class="h-full flex flex-col w-full max-w-5xl mx-auto pt-6">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-center text-emerald-400">ResNet-20: Progressão do Dano</h2>
+                <div class="img-card group">
+                    <div class="absolute top-2 left-3 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-900 px-2 py-1 rounded">Curvas de Colapso da Acurácia</div>
+                    <img src="./Experimento2/resultados_paper/grafico_stress_progressivo_global_resnet20.png" alt="Colapso ResNet-20" onerror="fallbackImage(this, 'grafico_stress_progressivo_global_resnet20.png')">
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: ResNet-20 Histograma Comparativo -->
+        <div class="slide">
+            <div class="h-full flex flex-col w-full max-w-5xl mx-auto pt-6">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-center text-emerald-400">ResNet-20: Severidade dos Pesos</h2>
+                <div class="img-card group">
+                    <div class="absolute top-2 left-3 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-900 px-2 py-1 rounded">Histograma de Vulnerabilidade (Base vs Vacina)</div>
+                    <img src="./Experimento2/resultados_paper/grafico_comparativo_baseline_vacinado.png" alt="Histograma ResNet-20" onerror="fallbackImage(this, 'grafico_comparativo_baseline_vacinado.png')">
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: ResNet-20 Ataque Triplo -->
+        <div class="slide">
+            <div class="h-full flex flex-col w-full max-w-5xl mx-auto pt-6">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-center text-emerald-400">ResNet-20: Teste de Resiliência</h2>
+                <div class="img-card group">
+                    <div class="absolute top-2 left-3 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-900 px-2 py-1 rounded">Acurácia Sob Ataque Adaptativo Triplo</div>
+                    <img src="./Experimento2/resultados_paper/grafico_ag_triplo_final_resnet20.png" alt="Ataque Triplo ResNet-20" onerror="fallbackImage(this, 'grafico_ag_triplo_final_resnet20.png')">
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- EXPERIMENTO 5: RESNET-32                   -->
+        <!-- ========================================== -->
+
+        <!-- SLIDE 8: ResNet-32 Bimodal -->
+        <div class="slide">
+            <div class="h-full flex flex-col w-full max-w-5xl mx-auto pt-6">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-center text-purple-400">ResNet-32: Ajuste Topológico</h2>
+                <div class="img-card group">
+                    <div class="absolute top-2 left-3 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-900 px-2 py-1 rounded">Distribuição Bimodal dos Pesos</div>
+                    <img src="./Experimento5/resultados_paper/distribuicao_pesos_bimodal_log_resnet32.png" alt="Bimodal ResNet-32" onerror="fallbackImage(this, 'distribuicao_pesos_bimodal_log_resnet32.png')">
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: ResNet-32 Curvas de Colapso -->
+        <div class="slide">
+            <div class="h-full flex flex-col w-full max-w-5xl mx-auto pt-6">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-center text-purple-400">ResNet-32: Progressão do Dano</h2>
+                <div class="img-card group">
+                    <div class="absolute top-2 left-3 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-900 px-2 py-1 rounded">Curvas de Colapso da Acurácia</div>
+                    <img src="./Experimento5/resultados_paper/grafico_stress_progressivo_global_resnet32.png" alt="Colapso ResNet-32" onerror="fallbackImage(this, 'grafico_stress_progressivo_global_resnet32.png')">
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: ResNet-32 Histograma Comparativo -->
+        <div class="slide">
+            <div class="h-full flex flex-col w-full max-w-5xl mx-auto pt-6">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-center text-purple-400">ResNet-32: Severidade dos Pesos</h2>
+                <div class="img-card group">
+                    <div class="absolute top-2 left-3 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-900 px-2 py-1 rounded">Histograma de Vulnerabilidade (Base vs Vacina)</div>
+                    <img src="./Experimento5/resultados_paper/grafico_comparativo_baseline_vacinado.png" alt="Histograma ResNet-32" onerror="fallbackImage(this, 'grafico_comparativo_baseline_vacinado.png')">
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: ResNet-32 Ataque Triplo -->
+        <div class="slide">
+            <div class="h-full flex flex-col w-full max-w-5xl mx-auto pt-6">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-center text-purple-400">ResNet-32: Teste de Resiliência</h2>
+                <div class="img-card group">
+                    <div class="absolute top-2 left-3 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-900 px-2 py-1 rounded">Acurácia Sob Ataque Adaptativo Triplo</div>
+                    <img src="./Experimento5/resultados_paper/grafico_ag_triplo_final_resnet32.png" alt="Ataque Triplo ResNet-32" onerror="fallbackImage(this, 'grafico_ag_triplo_final_resnet32.png')">
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- EXPERIMENTO 4: RESNET-44                   -->
+        <!-- ========================================== -->
+
+        <!-- SLIDE 12: ResNet-44 Bimodal -->
+        <div class="slide">
+            <div class="h-full flex flex-col w-full max-w-5xl mx-auto pt-6">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-center text-orange-400">ResNet-44: Ajuste Topológico</h2>
+                <div class="img-card group">
+                    <div class="absolute top-2 left-3 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-900 px-2 py-1 rounded">Distribuição Bimodal dos Pesos</div>
+                    <img src="./Experimento4/resultados_paper/distribuicao_pesos_bimodal_log_resnet44.png" alt="Bimodal ResNet-44" onerror="fallbackImage(this, 'distribuicao_pesos_bimodal_log_resnet44.png')">
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 13: ResNet-44 Curvas de Colapso -->
+        <div class="slide">
+            <div class="h-full flex flex-col w-full max-w-5xl mx-auto pt-6">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-center text-orange-400">ResNet-44: Progressão do Dano</h2>
+                <div class="img-card group">
+                    <div class="absolute top-2 left-3 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-900 px-2 py-1 rounded">Curvas de Colapso da Acurácia</div>
+                    <img src="./Experimento4/resultados_paper/grafico_stress_progressivo_global_resnet44.png" alt="Colapso ResNet-44" onerror="fallbackImage(this, 'grafico_stress_progressivo_global_resnet44.png')">
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 14: ResNet-44 Histograma Comparativo -->
+        <div class="slide">
+            <div class="h-full flex flex-col w-full max-w-5xl mx-auto pt-6">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-center text-orange-400">ResNet-44: Severidade dos Pesos</h2>
+                <div class="img-card group">
+                    <div class="absolute top-2 left-3 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-900 px-2 py-1 rounded">Histograma de Vulnerabilidade (Base vs Vacina)</div>
+                    <img src="./Experimento4/resultados_paper/grafico_comparativo_baseline_vacinado.png" alt="Histograma ResNet-44" onerror="fallbackImage(this, 'grafico_comparativo_baseline_vacinado.png')">
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 15: ResNet-44 Ataque Triplo -->
+        <div class="slide">
+            <div class="h-full flex flex-col w-full max-w-5xl mx-auto pt-6">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-center text-orange-400">ResNet-44: Teste de Resiliência</h2>
+                <div class="img-card group">
+                    <div class="absolute top-2 left-3 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-900 px-2 py-1 rounded">Acurácia Sob Ataque Adaptativo Triplo</div>
+                    <img src="./Experimento4/resultados_paper/grafico_ag_triplo_final_resnet44.png" alt="Ataque Triplo ResNet-44" onerror="this.onerror=null; this.src='./Experimento4/resultados_paper/grafico_ag_triplo_definitivo_resnet44.png'; this.onerror=function(){fallbackImage(this, 'grafico_ag_triplo_final_resnet44.png')}">
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- EXPERIMENTO 3: RESNET-56                   -->
+        <!-- ========================================== -->
+
+        <!-- SLIDE 16: ResNet-56 Bimodal -->
+        <div class="slide">
+            <div class="h-full flex flex-col w-full max-w-5xl mx-auto pt-6">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-center text-cyan-400">ResNet-56: Ajuste Topológico</h2>
+                <div class="img-card group">
+                    <div class="absolute top-2 left-3 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-900 px-2 py-1 rounded">Distribuição Bimodal dos Pesos</div>
+                    <img src="./Experimento3/resultados_paper/distribuicao_pesos_bimodal_log_resnet56.png" alt="Bimodal ResNet-56" onerror="fallbackImage(this, 'distribuicao_pesos_bimodal_log_resnet56.png')">
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 17: ResNet-56 Curvas de Colapso -->
+        <div class="slide">
+            <div class="h-full flex flex-col w-full max-w-5xl mx-auto pt-6">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-center text-cyan-400">ResNet-56: Progressão do Dano</h2>
+                <div class="img-card group">
+                    <div class="absolute top-2 left-3 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-900 px-2 py-1 rounded">Curvas de Colapso da Acurácia</div>
+                    <img src="./Experimento3/resultados_paper/grafico_stress_progressivo_global_resnet56.png" alt="Colapso ResNet-56" onerror="fallbackImage(this, 'grafico_stress_progressivo_global_resnet56.png')">
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 18: ResNet-56 Histograma Comparativo -->
+        <div class="slide">
+            <div class="h-full flex flex-col w-full max-w-5xl mx-auto pt-6">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-center text-cyan-400">ResNet-56: Severidade dos Pesos</h2>
+                <div class="img-card group">
+                    <div class="absolute top-2 left-3 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-900 px-2 py-1 rounded">Histograma de Vulnerabilidade (Base vs Vacina)</div>
+                    <img src="./Experimento3/resultados_paper/grafico_comparativo_baseline_vacinado.png" alt="Histograma ResNet-56" onerror="fallbackImage(this, 'grafico_comparativo_baseline_vacinado.png')">
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 19: ResNet-56 Ataque Triplo -->
+        <div class="slide">
+            <div class="h-full flex flex-col w-full max-w-5xl mx-auto pt-6">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-center text-cyan-400">ResNet-56: Teste de Resiliência</h2>
+                <div class="img-card group">
+                    <div class="absolute top-2 left-3 text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-900 px-2 py-1 rounded">Acurácia Sob Ataque Adaptativo Triplo</div>
+                    <img src="./Experimento3/resultados_paper/grafico_ag_triplo_final_resnet56.png" alt="Ataque Triplo ResNet-56" onerror="fallbackImage(this, 'grafico_ag_triplo_final_resnet56.png')">
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SLIDE 20: Conclusão                        -->
+        <!-- ========================================== -->
+        <div class="slide">
+            <div class="h-full flex flex-col items-center justify-center text-center max-w-4xl mx-auto">
+                <div class="mb-6 text-emerald-500 text-6xl">
+                    <i class="fa-solid fa-check-circle"></i>
+                </div>
+                <h2 class="text-4xl font-bold mb-8 text-white">
+                    Conclusões da Pesquisa
+                </h2>
+                
+                <div class="bg-slate-800/80 p-8 rounded-2xl border border-slate-600 text-left space-y-6 shadow-2xl">
+                    <div class="flex gap-4">
+                        <div class="text-blue-400 mt-1"><i class="fa-solid fa-chart-line"></i></div>
+                        <div>
+                            <h4 class="font-bold text-white text-lg">Achatamento de Severidade</h4>
+                            <p class="text-slate-300">A injeção seletiva de ruído diluiu com sucesso os parâmetros letais na rede. O colapso agudo evidenciado nas curvas foi transformado em degradação graciosa em todas as topologias (20 a 56 camadas).</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="text-blue-400 mt-1"><i class="fa-solid fa-ghost"></i></div>
+                        <div>
+                            <h4 class="font-bold text-white text-lg">Moving Target Defense (MTD) Eficaz</h4>
+                            <p class="text-slate-300">A predição Weight-Level evidenciou que a vacina altera massivamente a identidade estrutural dos "Top 120" alvos, forçando ataques previamente mapeados a falharem criticamente contra o modelo protegido.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="text-blue-400 mt-1"><i class="fa-solid fa-brain"></i></div>
+                        <div>
+                            <h4 class="font-bold text-white text-lg">Robustez Genética e Evolutiva</h4>
+                            <p class="text-slate-300">Mesmo com a adaptação total do Algoritmo Genético para caçar os novos alvos vacinados a partir do zero (Cenário 3), as redes demonstraram alta resiliência estrutural sob falha.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 text-slate-500 text-sm">
+                    Fim da Apresentação • Navegue com <i class="fa-solid fa-arrow-left mx-1"></i> <i class="fa-solid fa-arrow-right mx-1"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controles de Navegação Fixos -->
+        <button class="nav-btn prev-btn" onclick="prevSlide()" aria-label="Slide anterior"><i class="fa-solid fa-chevron-left text-xl"></i></button>
+        <button class="nav-btn next-btn" onclick="nextSlide()" aria-label="Próximo slide"><i class="fa-solid fa-chevron-right text-xl"></i></button>
+        
+        <div class="dots-container" id="dots-container"></div>
     </div>
 
     <script>
-        let currentSlide = 0;
+        // Sistema de Slides
         const slides = document.querySelectorAll('.slide');
-        const counter = document.getElementById('slide-counter');
+        const dotsContainer = document.getElementById('dots-container');
+        let currentSlide = 0;
 
-        function updateSlide() {
+        // Criar Dots
+        slides.forEach((_, index) => {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if (index === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => goToSlide(index));
+            dotsContainer.appendChild(dot);
+        });
+
+        const dots = document.querySelectorAll('.dot');
+
+        function updateUI() {
             slides.forEach((slide, index) => {
                 if (index === currentSlide) {
                     slide.classList.add('active');
@@ -350,34 +465,66 @@
                     slide.classList.remove('active');
                 }
             });
-            counter.innerText = `Slide ${currentSlide + 1} / ${slides.length}`;
+
+            dots.forEach((dot, index) => {
+                if (index === currentSlide) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
         }
 
         function nextSlide() {
             if (currentSlide < slides.length - 1) {
                 currentSlide++;
-                updateSlide();
+                updateUI();
             }
         }
 
         function prevSlide() {
             if (currentSlide > 0) {
                 currentSlide--;
-                updateSlide();
+                updateUI();
             }
         }
 
-        // Keyboard navigation
+        function goToSlide(index) {
+            currentSlide = index;
+            updateUI();
+        }
+
+        // Suporte a Teclado
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === ' ') {
-                nextSlide();
-            } else if (e.key === 'ArrowLeft') {
-                prevSlide();
-            }
+            if (e.key === 'ArrowRight' || e.key === 'Space') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
         });
 
-        // Initialize
-        updateSlide();
+        // Suporte a Swipe (Touch)
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
+
+        function handleSwipe() {
+            const threshold = 50;
+            if (touchEndX < touchStartX - threshold) nextSlide();
+            if (touchEndX > touchStartX + threshold) prevSlide();
+        }
+
+        // Fallback de imagem genérico para quando hospedado localmente
+        function fallbackImage(imgElement, filename) {
+            imgElement.onerror = null; // Previne loop infinito
+            const svgData = `<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%' viewBox='0 0 400 300'><rect width='400' height='300' fill='%231e293b'/><circle cx='200' cy='120' r='30' fill='%23334155'/><path d='M190 110l10 10 15-15' stroke='%2394a3b8' stroke-width='4' fill='none'/><text x='50%' y='60%' fill='%2394a3b8' font-family='sans-serif' font-size='14' text-anchor='middle'>Imagem do repositório pendente:</text><text x='50%' y='70%' fill='%233b82f6' font-family='monospace' font-size='12' text-anchor='middle'>${filename}</text></svg>`;
+            imgElement.src = `data:image/svg+xml;utf8,${svgData}`;
+        }
     </script>
 </body>
 </html>
