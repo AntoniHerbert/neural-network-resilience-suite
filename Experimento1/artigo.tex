@@ -1,0 +1,131 @@
+% --- UNIVERSAL PREAMBLE BLOCK ---
+\documentclass[11pt, a4paper]{article}
+
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=2cm, right=2cm]{geometry}
+\usepackage{fontspec}
+
+\usepackage[portuguese, bidi=basic, provide=*]{babel}
+
+\babelprovide[import, onchar=ids fonts]{portuguese}
+\babelprovide[import, onchar=ids fonts]{english}
+
+% Set default/Latin font to Serif for academic style
+\babelfont{rm}{Noto Serif}
+
+% Add because main language is not English
+\usepackage{enumitem}
+\setlist[itemize]{label=-}
+% --- END OF UNIVERSAL PREAMBLE BLOCK ---
+
+% Additional safe packages
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{hyperref} % Must be the last package
+
+\title{\textbf{Mitigação de Falhas em Redes Neurais: Uma Abordagem Adaptativa Utilizando o Framework MLBFA e Fault-Aware Training}}
+\author{Seu Nome Aqui \and Orientador Aqui}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+A implantação de Redes Neurais Profundas (DNNs) em hardwares de missão crítica exige alta resiliência contra falhas transientes, como \textit{soft errors} (bit-flips). A avaliação de tais vulnerabilidades através de injeção de falhas por força bruta é computacionalmente proibitiva devido à explosão combinatória. Este trabalho utiliza o \textit{Machine Learning-Guided Framework for Efficient Bit-Flip Attacks} (MLBFA) para realizar o perfilamento estatístico e a injeção adaptativa de falhas na arquitetura ResNet-18, identificando a camada mais crítica (\texttt{conv1}). Para atestar a robustez do modelo sob o pior caso absoluto, foram avaliados três algoritmos de busca heurística (Gulosa, Progressiva e Genética) em cenários de ataque adaptativo (\textit{White-Box}). Além disso, foi proposta a mitigação direcionada através de \textit{Fault-Aware Training}. Os resultados demonstram que, sob ataques adaptativos progressivos (o cenário heurístico mais letal em tempo real), a técnica elevou a acurácia sob falha de 50.6\% para 64.6\%, comprovando que a topologia baseada em conexões residuais impede a centralização da vulnerabilidade (\textit{whack-a-mole effect}). 
+
+\textbf{Palavras-chave:} ResNet-18, MLBFA, Bit-Flip, Algoritmos Genéticos, Tolerância a Falhas.
+\end{abstract}
+
+\section{Introdução}
+O uso de aceleradores de hardware para a execução de Redes Neurais Convolucionais (CNNs) introduz desafios significativos de confiabilidade. Radiação, ruídos de tensão e flutuações térmicas podem induzir inversões indesejadas de bits (\textit{bit-flips}) na memória que armazena os pesos matemáticos do modelo, levando à degradação catastrófica da inferência. 
+
+Na literatura, a injeção estocástica de falhas é amplamente utilizada para medir a resiliência de modelos. Contudo, mapear a pior combinação possível de falhas em uma rede profunda é um problema intratável através da força bruta. Dessa forma, metodologias modernas dependem de heurísticas de otimização para guiar os ataques.
+
+Neste artigo, avaliamos empiricamente as vulnerabilidades de uma ResNet-18 treinada no \textit{dataset} CIFAR-10. Utilizando o \textit{framework} MLBFA, executamos um mapeamento estatístico de vulnerabilidade (\textit{Layer-wise Profiling}) seguido de ataques otimizados de múltiplos bits (\textit{Bit-wise Search}). Por fim, validamos a eficácia da técnica de \textit{Fault-Aware Training} aplicada especificamente na camada crítica.
+
+\section{Metodologia}
+
+A condução dos experimentos foi estruturada em um \textit{pipeline} de três etapas contíguas, operando sobre o \textit{dataset} CIFAR-10 e a arquitetura ResNet-18. Para otimizar o custo computacional das validações heurísticas, implementou-se um mecanismo de \textit{cache} em memória (armazenamento estático de 512 imagens pré-processadas), convertendo operações intensivas de I/O em operações puramente matemáticas na CPU. A injeção de falhas seguiu o modelo \textit{fake quantization}, no qual o parâmetro em ponto flutuante é temporariamente convertido para um inteiro de 8 bits (INT8), o Bit Mais Significativo (MSB, índice 7) é invertido via operação lógica XOR (\texttt{\^{} (1 << 7)}), e o valor é de-quantizado de volta para o formato original, simulando uma falha de hardware em tempo de execução.
+
+\subsection{Perfilamento Estatístico com FPC (MLBFA - Fase 1)}
+A exploração exaustiva de todas as camadas requereria simulações inviáveis. Para evitar esse custo, aplicou-se a estratégia de amostragem adaptativa do MLBFA baseada na Correção de População Finita (FPC - \textit{Finite Population Correction}). O processo se dividiu em duas subetapas:
+\begin{enumerate}
+    \item \textbf{Exploração de Variância (\textit{Warm-up}):} Foram realizadas 30 injeções isoladas (1-bit) aleatórias em cada camada da rede. Calculou-se o desvio padrão da queda de acurácia. Camadas instáveis (alto desvio padrão) indicam a necessidade de um alvo rigoroso de margem de erro estatístico ($E_{goal}$).
+    \item \textbf{Injeção Adaptativa Layer-wise:} Com o $E_{goal}$ ajustado para cada camada, o algoritmo iniciou as injeções contínuas, calculando dinamicamente a taxa de falha observada ($\hat{p}$) e a margem de erro atual ($\hat{E}$). A amostragem foi interrompida imediatamente assim que $\hat{E} \leq E_{goal}$ com 99\% de nível de confiança, otimizando o número de inferências.
+\end{enumerate}
+O laudo resultante (\textit{Vulnerability Map}) revelou a camada \texttt{conv1} como o alvo crítico, direcionando todos os recursos das fases seguintes exclusivamente para esta seção do modelo.
+
+\subsection{Ataques Otimizados e Adaptativos (MLBFA - Fase 2)}
+Com o alvo reduzido à camada \texttt{conv1} (que conta com 9.408 parâmetros de peso), o espaço de busca para um ataque coordenado de 6 \textit{bit-flips} é dado por:
+\begin{equation}
+C_{9408, 6} = \frac{9408!}{6!(9408-6)!} \approx 6.89 \times 10^{20}
+\end{equation}
+Como a validação de $10^{20}$ combinações é proibitiva na computação moderna, foram implementados três algoritmos de busca para explorar este espaço estocástico:
+
+\begin{itemize}
+    \item \textbf{Busca Gulosa (\textit{Greedy Search}):} Uma heurística direta que avalia amostras individuais buscando o maior dano imediato. O algoritmo amostrou 100 pesos aleatórios, testando o impacto do MSB \textit{flip} de cada um de forma isolada. Os resultados foram ranqueados, e os 6 pesos mais destrutivos individualmente foram injetados simultaneamente na rede.
+    \item \textbf{Busca Progressiva (\textit{Progressive Search}):} Focada na maximização da sinergia entre falhas, opera em cascata. No primeiro passo, testa uma amostra de pesos e seleciona o mais destrutivo, "travando-o" como uma falha ativa na rede. No segundo passo, com o modelo já corrompido, testa novos candidatos para encontrar o peso que causa o maior dano conjunto com a falha anterior. O processo se repete 6 vezes, acumulando o dano passo a passo.
+    \item \textbf{Busca Evolutiva (\textit{Genetic Search}):} Utiliza a mecânica de algoritmos genéticos clássicos. Foi instanciada uma População de 20 "cromossomos" (onde cada cromossomo é uma lista de 6 índices de pesos). A Função de \textit{Fitness} avaliou a acurácia sob o ataque de cada cromossomo (buscando o menor valor possível). Ao longo de 5 Gerações, operaram-se mecanismos de Elitismo (preservação dos 4 ataques mais letais), \textit{Crossover} (mescla de conjuntos de índices de pais distintos) e Mutação (15\% de probabilidade de trocar um alvo por um índice aleatório), refinando progressivamente a letalidade do esquadrão de ataque.
+\end{itemize}
+
+Para assegurar validade científica e prevenir falsos positivos referentes ao Efeito \textit{Whack-a-Mole}, os ataques não foram transferidos cegamente entre os modelos. Adotou-se o rigor do paradigma adaptativo (\textit{White-Box}): cada algoritmo heurístico rodou integralmente sua rotina de busca de forma separada no modelo original e, de novo, a partir do zero, no modelo mitigado. 
+
+\subsection{Mitigação via \textit{Fault-Aware Training}}
+Para blindar o modelo contra a exploração cirúrgica detalhada na Fase 2, empregou-se a técnica de \textit{Fault-Aware Training} voltada especificamente para o elo fraco da topologia (\textit{Layer-Specific}).
+A ResNet-18 padrão foi submetida a um retreinamento de ajuste fino (\textit{fine-tuning}) por 3 épocas. Durante o processamento (\textit{forward pass}) dos \textit{batches} de treinamento, o algoritmo introduziu dinamicamente inversões do MSB nos pesos da camada \texttt{conv1} com probabilidade $p=0.5$. 
+
+Ao forçar a rede a operar recebendo mapas de características ("\textit{feature maps}") corrompidos com ruído de quantização desde o início do fluxo de dados, a retropropagação do erro (\textit{backpropagation}) ajustou os pesos globais para regularizar o modelo. A arquitetura aprendeu a descentralizar a importância semântica dos pesos individuais da camada \texttt{conv1}, forçando as camadas convolucionais mais profundas a confiarem em uma extração de características holística e redundante, reduzindo o impacto de inversões críticas estáticas sem comprometer a acurácia limpa (\textit{Golden Accuracy}).
+
+\section{Resultados e Discussão}
+
+\subsection{Comparativo de Letalidade das Heurísticas}
+A avaliação de curto prazo (\textit{Sanity Check}) das três estratégias de ataque adaptativo no modelo original revelou a seguinte degradação de acurácia: Busca Progressiva (50.6\%), Busca Genética (60.7\%) e Busca Gulosa (61.3\%). A Busca Progressiva demonstrou superioridade de curto prazo ao "travar" o erro em cascata, evitando explorações iterativas subótimas comuns às gerações iniciais da Busca Evolutiva.
+
+\subsection{A Anomalia Dinâmica vs. Estática}
+Um resultado inicialmente contra-intuitivo foi a discrepância entre a letalidade do ataque estocástico dinâmico (Ataque Aleatório: 12.5\%) em comparação aos ataques heurísticos estáticos ($\sim$50\% a 60\%). Esse fenômeno ilustra a limitação temporal dos métodos iterativos frente ao oceano de $10^{20}$ possibilidades. Enquanto os ataques heurísticos travam o estado de 6 pesos, destruindo o reconhecimento de características locais, o bombardeio dinâmico corrompe aleatoriamente a extração de diferentes filtros a cada lote de imagens, inviabilizando a inferência global do \textit{dataset}.
+
+\subsection{Robustez da Defesa e o Efeito \textit{Whack-a-Mole}}
+As Figuras \ref{fig:guloso}, \ref{fig:progressivo} e \ref{fig:genetico} apresentam a análise visual comparativa sob o escopo adaptativo. Em todos os cenários, o modelo mitigado ("Vacinado") sustentou resiliência expressivamente superior.
+
+\begin{figure}[htbp]
+  \centering
+  \framebox{\parbox{0.8\textwidth}{\centering
+    \vspace{2cm}
+    \textbf{Placeholder: Gráfico Adaptativo Guloso} \\
+    \small\textit{Substituir por \texttt{grafico\_adaptativo\_guloso\_ResNet18.png}}
+    \vspace{2cm}
+  }}
+  \caption{Ataque Adaptativo White-Box (Busca Gulosa) na conv1.}
+  \label{fig:guloso}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \framebox{\parbox{0.8\textwidth}{\centering
+    \vspace{2cm}
+    \textbf{Placeholder: Gráfico Adaptativo Progressivo} \\
+    \small\textit{Substituir por \texttt{grafico\_adaptativo\_progressivo\_ResNet18.png}}
+    \vspace{2cm}
+  }}
+  \caption{Ataque Adaptativo White-Box (Busca Progressiva) na conv1.}
+  \label{fig:progressivo}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \framebox{\parbox{0.8\textwidth}{\centering
+    \vspace{2cm}
+    \textbf{Placeholder: Gráfico Adaptativo Genético} \\
+    \small\textit{Substituir por \texttt{grafico\_adaptativo\_fast\_ResNet18.png}}
+    \vspace{2cm}
+  }}
+  \caption{Ataque Adaptativo White-Box (Algoritmo Genético) na conv1.}
+  \label{fig:genetico}
+\end{figure}
+
+Um risco inerente às mitigações focadas em camadas (\textit{Layer-Specific}) é a redistribuição de pesos de alta magnitude para as camadas subsequentes (Efeito \textit{Whack-a-Mole}). Entretanto, a eficácia demonstrada perante aos ataques \textit{White-Box} comprova que a arquitetura ResNet-18, com suas conexões residuais (\textit{skip connections}), dilui o gradiente da penalização durante o \textit{backpropagation}. O erro mitigado não sobrecarregou exclusivamente a camada vizinha, mas sim forçou a rede a estabelecer um consenso probabilístico global de extração de características.
+
+\section{Conclusão}
+Este estudo demonstrou a aplicabilidade prática do \textit{framework} estatístico MLBFA para a contenção de complexidade na exploração do espaço de busca combinatória ($10^{20}$) na rede ResNet-18. A simulação isolada revelou que sob restrições de tempo de processamento, a Busca Progressiva apresenta a maior eficácia letal dentre os algoritmos focados. Além disso, a aplicação de \textit{Fault-Aware Training} pontual não apenas descentralizou a dependência da camada crítica, mas conferiu resistência global robusta à topologia neural sob ataques adaptativos, validando o modelo mitigado para aplicações em ambientes sujeitos à injeção de falhas severas. Trabalhos futuros envolverão simulações evolutivas com maiores parâmetros populacionais visando contornar integralmente a explosão combinatória.
+
+\end{document}

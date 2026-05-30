@@ -1,0 +1,21 @@
+# ---------------------------------------------------
+# ARQUIVOS PESADOS DE MACHINE LEARNING (NÃO VERSIONAR)
+# ---------------------------------------------------
+# Modelos salvos (PyTorch e Scikit-Learn)
+*.pth
+*.pkl
+
+*.csv
+
+*.tar.gz
+*/data/
+data/
+
+# ---------------------------------------------------
+# AMBIENTES VIRTUAIS E CACHE DO PYTHON
+# ---------------------------------------------------
+venv/
+env/
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
