@@ -129,6 +129,12 @@
             border-radius: 8px;
         }
 
+        .highlight-card {
+            background: linear-gradient(145deg, rgba(30,41,59,0.8) 0%, rgba(15,23,42,0.9) 100%);
+            border: 1px solid rgba(59,130,246,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
@@ -392,7 +398,105 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- SLIDE 20: Conclusão                        -->
+        <!-- DISCUSSÃO & RESULTADOS: MTD E PARADOXO     -->
+        <!-- ========================================== -->
+
+        <!-- SLIDE 20: Métricas de Moving Target Defense -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center items-center max-w-5xl mx-auto text-center">
+                <h2 class="text-4xl font-bold mb-10 text-blue-400 border-b border-slate-700 pb-4 inline-block">
+                    A Mágica do Moving Target Defense (MTD)
+                </h2>
+                <p class="text-xl text-slate-300 leading-relaxed mb-10 max-w-4xl">
+                    A injeção focada de ruído não apenas recuperou a acurácia, mas <strong>rotacionou as identidades</strong> dos pesos que causavam o colapso. O atacante que mapear a rede hoje, encontrará uma topologia totalmente diferente amanhã.
+                </p>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 w-full">
+                    <div class="highlight-card p-6 rounded-xl text-center">
+                        <div class="text-emerald-400 text-xl font-bold mb-2">ResNet-20</div>
+                        <div class="text-4xl font-black text-white">65.0%</div>
+                        <div class="text-sm text-slate-400 mt-2">de alvos deslocados</div>
+                    </div>
+                    <div class="highlight-card p-6 rounded-xl text-center">
+                        <div class="text-purple-400 text-xl font-bold mb-2">ResNet-32</div>
+                        <div class="text-4xl font-black text-white">79.2%</div>
+                        <div class="text-sm text-slate-400 mt-2">de alvos deslocados</div>
+                    </div>
+                    <div class="highlight-card p-6 rounded-xl text-center">
+                        <div class="text-orange-400 text-xl font-bold mb-2">ResNet-44</div>
+                        <div class="text-4xl font-black text-white">56.7%</div>
+                        <div class="text-sm text-slate-400 mt-2">de alvos deslocados</div>
+                    </div>
+                    <div class="highlight-card p-6 rounded-xl text-center border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                        <div class="text-cyan-400 text-xl font-bold mb-2">ResNet-56</div>
+                        <div class="text-5xl font-black text-white">89.2%</div>
+                        <div class="text-sm text-slate-400 mt-2">de alvos deslocados</div>
+                    </div>
+                </div>
+                <p class="text-lg text-slate-400 mt-8 italic">
+                    "Quanto mais profunda e redundante a arquitetura, maior a capacidade da vacina em dispersar a letalidade pelo tecido neural."
+                </p>
+            </div>
+        </div>
+
+        <!-- SLIDE 21: O Paradoxo -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center items-center max-w-4xl mx-auto text-center">
+                <div class="text-amber-400 text-6xl mb-6"><i class="fa-solid fa-lightbulb"></i></div>
+                <h2 class="text-4xl font-bold mb-6 text-amber-400 border-b border-slate-700 pb-4 inline-block">
+                    O Paradoxo da Falsa Letalidade
+                </h2>
+                <div class="bg-amber-900/30 border border-amber-700/50 p-6 rounded-xl mb-8 shadow-xl">
+                    <p class="text-2xl text-amber-100 font-semibold leading-relaxed">
+                        Por que o ataque focado nos Novos Alvos (Cenário 3) causa MENOS dano que o ataque desatualizado (Cenário 2)?
+                    </p>
+                </div>
+                <p class="text-xl text-slate-300 leading-relaxed max-w-3xl">
+                    Em arquiteturas como a ResNet-32 e ResNet-44, o Algoritmo Genético possui a "cola" da prova: ele sabe exatamente quais são os novos pesos matematicamente vulneráveis. No entanto, focar neles resulta em uma retenção de acurácia <strong>superior</strong>.
+                </p>
+            </div>
+        </div>
+
+        <!-- SLIDE 22: A Explicação (Pilares) -->
+        <div class="slide">
+            <div class="h-full flex flex-col items-center justify-center text-center max-w-6xl mx-auto">
+                <h2 class="text-3xl font-bold mb-10 text-white border-b border-slate-700 pb-4">
+                    <i class="fa-solid fa-microscope text-blue-400 mr-3"></i> Como a Vacina Engana o Algoritmo?
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                    <!-- Argumento 1 -->
+                    <div class="bg-slate-800/60 p-6 rounded-xl border border-slate-600 shadow-lg transform transition hover:scale-105">
+                        <div class="text-blue-400 text-3xl mb-4"><i class="fa-solid fa-fish-fins"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-3">1. Efeito Chamariz (Decoys)</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            A injeção direcional de ruído forçou a rede a criar rotas redundantes. Os novos "Top 120" exibem alta energia matemática para o preditor, mas são falsos positivos. O atacante gasta recursos vitais em alvos funcionalmente descartáveis.
+                        </p>
+                    </div>
+                    
+                    <!-- Argumento 2 -->
+                    <div class="bg-slate-800/60 p-6 rounded-xl border border-slate-600 shadow-lg transform transition hover:scale-105">
+                        <div class="text-emerald-400 text-3xl mb-4"><i class="fa-solid fa-mountain-sun"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-3">2. Achatamento do Panorama</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            A vulnerabilidade foi tão diluída pela função bimodal que os "novos piores pesos" possuem letalidades irrisórias. A vacina converteu picos agudos de falha em planícies seguras. O AG tenta causar colapso em compartimentos blindados.
+                        </p>
+                    </div>
+                    
+                    <!-- Argumento 3 -->
+                    <div class="bg-slate-800/60 p-6 rounded-xl border border-slate-600 shadow-lg transform transition hover:scale-105">
+                        <div class="text-purple-400 text-3xl mb-4"><i class="fa-solid fa-traffic-light"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-3">3. Gargalos Estruturais</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            Os alvos antigos (Cenário 2) representavam as espinhas dorsais inatas da arquitetura ResNet. Atacá-los ainda afeta o gradiente central. Os novos alvos (Cenário 3) não são gargalos espaciais absolutos, resultando em dano quase nulo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SLIDE 23: Conclusão                        -->
         <!-- ========================================== -->
         <div class="slide">
             <div class="h-full flex flex-col items-center justify-center text-center max-w-4xl mx-auto">
@@ -407,22 +511,22 @@
                     <div class="flex gap-4">
                         <div class="text-blue-400 mt-1"><i class="fa-solid fa-chart-line"></i></div>
                         <div>
-                            <h4 class="font-bold text-white text-lg">Achatamento de Severidade</h4>
-                            <p class="text-slate-300">A injeção seletiva de ruído diluiu com sucesso os parâmetros letais na rede. O colapso agudo evidenciado nas curvas foi transformado em degradação graciosa em todas as topologias (20 a 56 camadas).</p>
+                            <h4 class="font-bold text-white text-lg">Achatamento Direto de Letalidade</h4>
+                            <p class="text-slate-300">A injeção seletiva de ruído orientada por predição de vulnerabilidade converte arquiteturas propensas ao colapso agudo (ResNet-20 a ResNet-56) em sistemas resilientes de degradação graciosa.</p>
                         </div>
                     </div>
                     <div class="flex gap-4">
                         <div class="text-blue-400 mt-1"><i class="fa-solid fa-ghost"></i></div>
                         <div>
-                            <h4 class="font-bold text-white text-lg">Moving Target Defense (MTD) Eficaz</h4>
-                            <p class="text-slate-300">A predição Weight-Level evidenciou que a vacina altera massivamente a identidade estrutural dos "Top 120" alvos, forçando ataques previamente mapeados a falharem criticamente contra o modelo protegido.</p>
+                            <h4 class="font-bold text-white text-lg">Moving Target Defense Orgânico</h4>
+                            <p class="text-slate-300">As identidades dos pesos críticos são severamente rotacionadas. Escala-se proporcionalmente com a profundidade da rede: a ResNet-56 atinge impressionantes 89,2% de deslocamento identitário dos alvos.</p>
                         </div>
                     </div>
                     <div class="flex gap-4">
-                        <div class="text-blue-400 mt-1"><i class="fa-solid fa-brain"></i></div>
+                        <div class="text-blue-400 mt-1"><i class="fa-solid fa-shield-cat"></i></div>
                         <div>
-                            <h4 class="font-bold text-white text-lg">Robustez Genética e Evolutiva</h4>
-                            <p class="text-slate-300">Mesmo com a adaptação total do Algoritmo Genético para caçar os novos alvos vacinados a partir do zero (Cenário 3), as redes demonstraram alta resiliência estrutural sob falha.</p>
+                            <h4 class="font-bold text-white text-lg">Invulnerabilidade Evolutiva</h4>
+                            <p class="text-slate-300">A resiliência observada no Cenário 3 demonstra que a vacina descentraliza a importância funcional a ponto de frustrar algoritmos de busca ótimos e ataques estritamente adaptados à nova topologia.</p>
                         </div>
                     </div>
                 </div>
